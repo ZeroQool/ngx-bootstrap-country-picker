@@ -1,0 +1,386 @@
+<div class="ngx-country-picker-wrapper position-relative" [ngClass]="customClass">
+  <!-- ── Label (Standard mode) ── -->
+  <label
+    *ngIf="effectiveLabel && inputMode !== 'floating'"
+    class="form-label fw-semibold mb-1"
+    [class.text-danger]="error"
+    [class.text-muted]="disabled"
+  >
+    {{ effectiveLabel }}
+  </label>
+
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <!-- MODE 1: dialCode (Input Group with Flag + Code Selector + Phone Input)     -->
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <div
+    *ngIf="displayMode === 'dialCode'"
+    class="input-group"
+    [ngClass]="[sizeClass, inputMode === 'flat' ? 'flat-input-group' : '']"
+    [class.has-validation]="error"
+  >
+    <!-- Country dial code trigger button -->
+    <button
+      type="button"
+      class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 country-selector-btn"
+      [ngClass]="buttonSizeClass"
+      [class.btn-outline-danger]="error"
+      [class.disabled]="disabled"
+      [disabled]="disabled"
+      (click)="toggle()"
+      [attr.aria-expanded]="isOpen"
+      [attr.aria-label]="t.dialCode.placeholder"
+    >
+      <ng-container *ngIf="activeCountry; else globeIcon">
+        <img
+          *ngIf="!hasImageError(activeCountry.isoCode); else emojiTrigger"
+          [src]="getFlag(activeCountry)"
+          [alt]="activeCountry.name"
+          class="flag-icon"
+          (error)="onImageError(activeCountry.isoCode)"
+          loading="lazy"
+        />
+        <ng-template #emojiTrigger>
+          <span class="flag-emoji">{{ getEmoji(activeCountry) }}</span>
+        </ng-template>
+        <span class="dial-code-label fw-bold">{{ activeCountry.dialCode }}</span>
+      </ng-container>
+      <ng-template #globeIcon>
+        <span class="flag-emoji">🌐</span>
+        <span class="text-muted">+??</span>
+      </ng-template>
+    </button>
+
+    <!-- Editable phone number input -->
+    <input
+      #phoneInput
+      type="tel"
+      class="form-control phone-input"
+      [ngClass]="inputSizeClass"
+      [class.is-invalid]="error"
+      [value]="internalPhone"
+      (input)="onPhoneInput($event)"
+      [placeholder]="effectivePhonePlaceholder"
+      [disabled]="disabled"
+      [attr.maxlength]="phoneMaxLength"
+      autocomplete="tel-national"
+    />
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <!-- MODE 2 & 3: name / currency (Country or Currency Selector Box)            -->
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <div
+    *ngIf="displayMode !== 'dialCode'"
+    class="country-picker-trigger form-control d-flex align-items-center justify-content-between"
+    [ngClass]="[
+      inputSizeClass,
+      inputMode === 'flat' ? 'flat-control' : '',
+      disabled ? 'disabled-control' : '',
+      isOpen ? 'focus-control' : ''
+    ]"
+    [class.is-invalid]="error"
+    (click)="toggle()"
+    role="button"
+    tabindex="0"
+    (keydown.enter)="toggle()"
+    (keydown.space)="toggle()"
+    [attr.aria-expanded]="isOpen"
+    [attr.aria-label]="effectiveLabel"
+  >
+    <div class="d-flex align-items-center gap-2 overflow-hidden text-truncate pe-2">
+      <ng-container *ngIf="activeCountry; else emptySelection">
+        <img
+          *ngIf="!hasImageError(activeCountry.isoCode); else emojiSelection"
+          [src]="getFlag(activeCountry)"
+          [alt]="activeCountry.name"
+          class="flag-icon"
+          (error)="onImageError(activeCountry.isoCode)"
+          loading="lazy"
+        />
+        <ng-template #emojiSelection>
+          <span class="flag-emoji">{{ getEmoji(activeCountry) }}</span>
+        </ng-template>
+        <span class="country-text fw-medium text-truncate">{{ displayValue }}</span>
+      </ng-container>
+      <ng-template #emptySelection>
+        <span class="flag-emoji">🌐</span>
+        <span class="text-muted placeholder-text text-truncate">{{ effectivePlaceholder }}</span>
+      </ng-template>
+    </div>
+
+    <span class="chevron-arrow text-muted" [class.chevron-open]="isOpen">▾</span>
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <!-- Helper text / Error message                                              -->
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <div *ngIf="error && errorMessage" class="invalid-feedback d-block">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="!error && helperText" class="form-text">
+    {{ helperText }}
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <!-- PRESENTATION 1: DROPDOWN MENU                                            -->
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <div
+    *ngIf="isOpen && modalMode === 'dropdown'"
+    class="country-dropdown-menu shadow-lg rounded-3 border bg-white position-absolute w-100 z-3 mt-1"
+    role="listbox"
+  >
+    <!-- Search Box Header -->
+    <div *ngIf="searchable" class="p-2 border-bottom search-header bg-light rounded-top-3">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-white border-end-0 text-muted">🔍</span>
+        <input
+          #searchInput
+          type="text"
+          class="form-control border-start-0 border-end-0 ps-1"
+          [(ngModel)]="searchQuery"
+          [placeholder]="effectiveSearchPlaceholder"
+          autocomplete="off"
+        />
+        <button
+          *ngIf="searchQuery"
+          type="button"
+          class="btn btn-outline-secondary border-start-0 bg-white"
+          (click)="clearSearch($event)"
+          title="Limpiar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-1 px-1">
+        <span class="small text-muted results-counter">
+          {{ t.resultsCount(filteredCountries.length) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Scrollable Country List -->
+    <div class="country-list-scroll">
+      <!-- Preferred countries group (when no query is active) -->
+      <ng-container *ngIf="!searchQuery && preferredList.length > 0">
+        <div class="px-3 py-1 bg-light small fw-bold text-uppercase text-muted border-bottom sticky-top">
+          ⭐ {{ language === 'es' ? 'Preferidos' : 'Preferred' }}
+        </div>
+        <button
+          type="button"
+          *ngFor="let country of preferredList"
+          class="dropdown-item d-flex align-items-center justify-content-between px-3 py-2 border-bottom country-item"
+          [class.active]="activeCountry?.isoCode === country.isoCode"
+          (click)="selectCountry(country)"
+          role="option"
+          [attr.aria-selected]="activeCountry?.isoCode === country.isoCode"
+        >
+          <div class="d-flex align-items-center gap-2 overflow-hidden text-truncate pe-2">
+            <img
+              *ngIf="!hasImageError(country.isoCode); else prefEmoji"
+              [src]="getFlag(country)"
+              [alt]="country.name"
+              class="flag-icon"
+              (error)="onImageError(country.isoCode)"
+              loading="lazy"
+            />
+            <ng-template #prefEmoji>
+              <span class="flag-emoji">{{ getEmoji(country) }}</span>
+            </ng-template>
+            <div class="text-truncate text-start">
+              <div class="country-name fw-medium text-truncate">
+                {{ getCountryDisplayName(country) }}
+              </div>
+              <div class="small text-muted">{{ getCountrySubtitle(country) }}</div>
+            </div>
+          </div>
+          <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
+        </button>
+        <div class="px-3 py-1 bg-light small fw-bold text-uppercase text-muted border-bottom border-top sticky-top">
+          🌍 {{ language === 'es' ? 'Todos los países' : 'All countries' }}
+        </div>
+      </ng-container>
+
+      <!-- Standard list or filtered list -->
+      <button
+        type="button"
+        *ngFor="let country of (searchQuery ? filteredCountries : otherList)"
+        class="dropdown-item d-flex align-items-center justify-content-between px-3 py-2 country-item"
+        [class.active]="activeCountry?.isoCode === country.isoCode"
+        (click)="selectCountry(country)"
+        role="option"
+        [attr.aria-selected]="activeCountry?.isoCode === country.isoCode"
+      >
+        <div class="d-flex align-items-center gap-2 overflow-hidden text-truncate pe-2">
+          <img
+            *ngIf="!hasImageError(country.isoCode); else listEmoji"
+            [src]="getFlag(country)"
+            [alt]="country.name"
+            class="flag-icon"
+            (error)="onImageError(country.isoCode)"
+            loading="lazy"
+          />
+          <ng-template #listEmoji>
+            <span class="flag-emoji">{{ getEmoji(country) }}</span>
+          </ng-template>
+          <div class="text-truncate text-start">
+            <div class="country-name fw-medium text-truncate">
+              {{ getCountryDisplayName(country) }}
+            </div>
+            <div class="small text-muted">{{ getCountrySubtitle(country) }}</div>
+          </div>
+        </div>
+        <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
+      </button>
+
+      <!-- Empty state -->
+      <div *ngIf="filteredCountries.length === 0" class="p-4 text-center text-muted">
+        <div class="fs-4 mb-1">🔍</div>
+        <div class="small fw-semibold">{{ t.noResults }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <!-- PRESENTATION 2: MODAL DIALOG                                             -->
+  <!-- ──────────────────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="isOpen && modalMode === 'modal'">
+    <div class="modal-backdrop fade show"></div>
+    <div
+      class="modal fade show d-block"
+      tabindex="-1"
+      role="dialog"
+      (click)="close()"
+    >
+      <div
+        class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-content shadow-lg border-0 rounded-4 overflow-hidden">
+          <!-- Header -->
+          <div class="modal-header bg-light border-bottom py-3 px-4">
+            <h5 class="modal-title fs-6 fw-bold mb-0">
+              {{ effectiveModalTitle }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              (click)="close()"
+              [attr.aria-label]="t.close"
+            ></button>
+          </div>
+
+          <!-- Search Input -->
+          <div *ngIf="searchable" class="p-3 border-bottom bg-white">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted">🔍</span>
+              <input
+                #searchInput
+                type="text"
+                class="form-control border-start-0 border-end-0 bg-light ps-1"
+                [(ngModel)]="searchQuery"
+                [placeholder]="effectiveSearchPlaceholder"
+                autocomplete="off"
+              />
+              <button
+                *ngIf="searchQuery"
+                type="button"
+                class="btn btn-outline-secondary border-start-0 bg-light"
+                (click)="clearSearch($event)"
+              >
+                ✕
+              </button>
+            </div>
+            <div class="small text-muted mt-2 px-1">
+              {{ t.resultsCount(filteredCountries.length) }}
+            </div>
+          </div>
+
+          <!-- Modal Country List -->
+          <div class="modal-body p-0 country-modal-scroll">
+            <!-- Preferred countries in modal -->
+            <ng-container *ngIf="!searchQuery && preferredList.length > 0">
+              <div class="px-4 py-2 bg-light small fw-bold text-uppercase text-muted border-bottom sticky-top">
+                ⭐ {{ language === 'es' ? 'Preferidos' : 'Preferred' }}
+              </div>
+              <button
+                type="button"
+                *ngFor="let country of preferredList"
+                class="dropdown-item d-flex align-items-center justify-content-between px-4 py-2 border-bottom country-item"
+                [class.active]="activeCountry?.isoCode === country.isoCode"
+                (click)="selectCountry(country)"
+              >
+                <div class="d-flex align-items-center gap-3 overflow-hidden text-truncate pe-2">
+                  <img
+                    *ngIf="!hasImageError(country.isoCode); else modalPrefEmoji"
+                    [src]="getFlag(country)"
+                    [alt]="country.name"
+                    class="flag-icon"
+                    (error)="onImageError(country.isoCode)"
+                    loading="lazy"
+                  />
+                  <ng-template #modalPrefEmoji>
+                    <span class="flag-emoji">{{ getEmoji(country) }}</span>
+                  </ng-template>
+                  <div class="text-truncate text-start">
+                    <div class="country-name fw-medium text-truncate">
+                      {{ getCountryDisplayName(country) }}
+                    </div>
+                    <div class="small text-muted">{{ getCountrySubtitle(country) }}</div>
+                  </div>
+                </div>
+                <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
+              </button>
+              <div class="px-4 py-2 bg-light small fw-bold text-uppercase text-muted border-bottom border-top sticky-top">
+                🌍 {{ language === 'es' ? 'Todos los países' : 'All countries' }}
+              </div>
+            </ng-container>
+
+            <!-- All countries in modal -->
+            <button
+              type="button"
+              *ngFor="let country of (searchQuery ? filteredCountries : otherList)"
+              class="dropdown-item d-flex align-items-center justify-content-between px-4 py-2 country-item"
+              [class.active]="activeCountry?.isoCode === country.isoCode"
+              (click)="selectCountry(country)"
+            >
+              <div class="d-flex align-items-center gap-3 overflow-hidden text-truncate pe-2">
+                <img
+                  *ngIf="!hasImageError(country.isoCode); else modalListEmoji"
+                  [src]="getFlag(country)"
+                  [alt]="country.name"
+                  class="flag-icon"
+                  (error)="onImageError(country.isoCode)"
+                  loading="lazy"
+                />
+                <ng-template #modalListEmoji>
+                  <span class="flag-emoji">{{ getEmoji(country) }}</span>
+                </ng-template>
+                <div class="text-truncate text-start">
+                  <div class="country-name fw-medium text-truncate">
+                    {{ getCountryDisplayName(country) }}
+                  </div>
+                  <div class="small text-muted">{{ getCountrySubtitle(country) }}</div>
+                </div>
+              </div>
+              <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
+            </button>
+
+            <!-- Modal Empty State -->
+            <div *ngIf="filteredCountries.length === 0" class="p-5 text-center text-muted">
+              <div class="fs-2 mb-2">🔍</div>
+              <div class="fw-semibold">{{ t.noResults }}</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer bg-light py-2 px-4">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="close()">
+              {{ t.close }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

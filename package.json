@@ -1,0 +1,59 @@
+{
+  "name": "ngx-bootstrap-country-picker",
+  "version": "1.0.0",
+  "description": "A customizable Bootstrap country picker for Angular with automatic phone masking, digit limits, searchable modal/dropdown, flags, dialing codes, and currency support.",
+  "keywords": [
+    "angular",
+    "angular21",
+    "bootstrap",
+    "bootstrap5",
+    "country-picker",
+    "country-selector",
+    "phone-input",
+    "phone-mask",
+    "dial-code",
+    "flags",
+    "currency",
+    "ngx-bootstrap-country-picker"
+  ],
+  "author": "Luis Batres <tomasbatres01@gmail.com> (https://github.com/ZeroQool)",
+  "license": "MIT",
+  "homepage": "https://github.com/ZeroQool/ngx-bootstrap-country-picker#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZeroQool/ngx-bootstrap-country-picker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ZeroQool/ngx-bootstrap-country-picker/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json",
+    "watch": "ng-packagr -p ng-package.json --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=19.0.0 || >=20.0.0 || ^21.0.0",
+    "@angular/core": ">=19.0.0 || >=20.0.0 || ^21.0.0",
+    "@angular/forms": ">=19.0.0 || >=20.0.0 || ^21.0.0",
+    "bootstrap": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "bootstrap": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "ng-packagr": "^21.0.0",
+    "tslib": "^2.8.0",
+    "typescript": "~5.8.0"
+  }
+}
