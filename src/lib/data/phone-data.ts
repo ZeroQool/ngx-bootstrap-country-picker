@@ -113,3 +113,4 @@ export const DEFAULT_PHONE_RULE: CountryPhoneRule = {
   maxDigits: 15,
   placeholder: 'Número de teléfono',
 };
+

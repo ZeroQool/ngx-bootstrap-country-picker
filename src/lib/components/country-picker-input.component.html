@@ -151,21 +151,12 @@
           ✕
         </button>
       </div>
-
-      <div class="d-flex justify-content-between align-items-center mt-1 px-1">
-        <span class="small text-muted results-counter">
-          {{ t.resultsCount(filteredCountries.length) }}
-        </span>
-      </div>
     </div>
 
     <!-- Scrollable Country List -->
     <div class="country-list-scroll">
       <!-- Preferred countries group (when no query is active) -->
       <ng-container *ngIf="!searchQuery && preferredList.length > 0">
-        <div class="px-3 py-1 bg-light small fw-bold text-uppercase text-muted border-bottom sticky-top">
-          ⭐ {{ language === 'es' ? 'Preferidos' : 'Preferred' }}
-        </div>
         <button
           type="button"
           *ngFor="let country of preferredList"
@@ -196,8 +187,8 @@
           </div>
           <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
         </button>
-        <div class="px-3 py-1 bg-light small fw-bold text-uppercase text-muted border-bottom border-top sticky-top">
-          🌍 {{ language === 'es' ? 'Todos los países' : 'All countries' }}
+        <div class="px-3 py-1 bg-light small fw-bold text-muted border-bottom border-top sticky-top">
+          {{ language === 'es' ? 'Todos los paises' : 'All countries' }}
         </div>
       </ng-container>
 
@@ -291,18 +282,12 @@
                 ✕
               </button>
             </div>
-            <div class="small text-muted mt-2 px-1">
-              {{ t.resultsCount(filteredCountries.length) }}
-            </div>
           </div>
 
           <!-- Modal Country List -->
           <div class="modal-body p-0 country-modal-scroll">
             <!-- Preferred countries in modal -->
             <ng-container *ngIf="!searchQuery && preferredList.length > 0">
-              <div class="px-4 py-2 bg-light small fw-bold text-uppercase text-muted border-bottom sticky-top">
-                ⭐ {{ language === 'es' ? 'Preferidos' : 'Preferred' }}
-              </div>
               <button
                 type="button"
                 *ngFor="let country of preferredList"
@@ -331,8 +316,8 @@
                 </div>
                 <span *ngIf="activeCountry?.isoCode === country.isoCode" class="check-icon text-primary fw-bold">✓</span>
               </button>
-              <div class="px-4 py-2 bg-light small fw-bold text-uppercase text-muted border-bottom border-top sticky-top">
-                🌍 {{ language === 'es' ? 'Todos los países' : 'All countries' }}
+              <div class="px-4 py-2 bg-light small fw-bold text-muted border-bottom border-top sticky-top">
+                {{ language === 'es' ? 'Todos los paises' : 'All countries' }}
               </div>
             </ng-container>
 
@@ -384,3 +369,4 @@
     </div>
   </ng-container>
 </div>
+

@@ -8,15 +8,15 @@ Incluye soporte para formularios reactivos (`ReactiveFormsModule` / `ControlValu
 
 ## Características
 
-- 🌍 **195 países** con banderas optimizadas vía CDN y respaldo de emojis.
+- **195 países** con banderas optimizadas vía CDN y respaldo de emojis.
 - 📞 **Modo `dialCode`**: prefijo telefónico internacional junto a campo de teléfono editable.
-- 🔢 **Máscara telefónica automática**: limita y formatea dígitos según las reglas de cada país (p. ej. Guatemala max 8 dígitos `1234-5678`).
+- **Máscara telefónica automática**: limita y formatea dígitos según las reglas de cada país (p. ej. Guatemala max 8 dígitos `1234-5678`).
 - 💱 **Modo `currency`**: selector de moneda con código ISO y símbolo.
-- 🎨 **Bootstrap 5 nativo**: diseñado para integrarse con `form-control`, `input-group` y `modal`.
-- 🔍 **Buscador interactivo**: filtra en tiempo real por nombre (inglés y español), ISO y código telefónico.
+-  **Bootstrap 5 nativo**: diseñado para integrarse con `form-control`, `input-group` y `modal`.
+-  **Buscador interactivo**: filtra en tiempo real por nombre (inglés y español), ISO y código telefónico.
 - 🌐 **Bilingüe**: soporte nativo para inglés (`en`) y español (`es`).
-- ⭐ **Países preferidos**: fija países al inicio de la lista.
-- ⚡ **Angular 21**: componente `standalone` listo para usar.
+- **Países preferidos**: fija países al inicio de la lista.
+- **Angular 21**: componente `standalone` listo para usar.
 
 ---
 
@@ -171,3 +171,4 @@ export class FormDemoComponent {
 ## Licencia
 
 MIT © Luis Batres
+
